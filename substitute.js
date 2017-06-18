@@ -96,9 +96,9 @@ function initTrail() { // prepares the script
 		storage[i] = 0
 	}
 	for (i = 0; i < images.length; i++) { // make divs for IE and layers for Navigator
-		document.write('<div id="obj' + i + '" style="position: absolute; z-Index: 100; height: 0; width: 0"><img src="' + images[i].src + '"></div>')
+		document.body.innerHTML += '<div id="obj' + i + '" style="position: absolute; z-Index: 100; height: 0; width: 0"><img src="' + images[i].src + '"></div>';
 	}
-	//trail()
+	trail()
 }
 function trail() { // trailing function
 	for (i = 0; i < images.length; i++) { // for every div/layer
@@ -110,7 +110,7 @@ function trail() { // trailing function
 		storage[i] = storage[i-2]
 	}
 	d = 0 // reset for future use
-	var timer = setTimeout("trail()",10) // call recursively
+	var timer = setTimeout(trail,10) // call recursively
 }
 function processEvent(e) { // catches and processes the mousemove event
 	if (window.event) { // for IE
