@@ -16,7 +16,74 @@ for (let word of emojiMap.keys()) {
   // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp
   regexs.set(word, new RegExp(word, 'gi'));
 }
+(function($) {
+        $.fn.textWidth = function(){
+             var calc = '<span style="display:none">' + $(this).text() + '</span>';
+             $('body').append(calc);
+             var width = $('body').find('span:last').width();
+             $('body').find('span:last').remove();
+            return width;
+        };
 
+        $.fn.marquee = function(args) {
+            var that = $(this);
+            var textWidth = that.textWidth(),
+                offset = that.width(),
+                width = offset,
+                css = {
+                    'text-indent' : that.css('text-indent'),
+                    'overflow' : that.css('overflow'),
+                    'white-space' : that.css('white-space')
+                },
+                marqueeCss = {
+                    'text-indent' : width,
+                    'overflow' : 'hidden',
+                    'white-space' : 'nowrap'
+                },
+                args = $.extend(true, { count: -1, speed: 1e1, leftToRight: false }, args),
+                i = 0,
+                stop = textWidth*-1,
+                dfd = $.Deferred();
+
+            function go() {
+                if(!that.length) return dfd.reject();
+                if(width == stop) {
+                    i++;
+                    if(i == args.count) {
+                        that.css(css);
+                        return dfd.resolve();
+                    }
+                    if(args.leftToRight) {
+                        width = textWidth*-1;
+                    } else {
+                        width = offset;
+                    }
+                }
+                that.css('text-indent', width + 'px');
+                if(args.leftToRight) {
+                    width++;
+                } else {
+                    width--;
+                }
+                setTimeout(go, args.speed);
+            };
+            if(args.leftToRight) {
+                width = textWidth*-1;
+                width++;
+                stop = offset;
+            } else {
+                width--;
+            }
+            that.css(marqueeCss);
+            go();
+            return dfd.promise();
+        };
+    })(jQuery);
+// $('h1').marquee();
+// $('h2').marquee({ count: 2 });
+// $('h3').marquee({ speed: 5 });
+// $('h4').marquee({ leftToRight: true });
+// $('h5').marquee({ count: 1, speed: 2 }).done(function() { $('h5').css('color', '#f00'); })​
 /**
  * Substitutes emojis into text nodes.
  * If the node contains more than just text (ex: it has child nodes),
@@ -74,6 +141,8 @@ function replaceText (node) {
 replaceText(document.body);
 console.log("ASDADAS")
 $("<style>* { font-family: 'Comic Sans MS'; }</style>").appendTo("head");
+$("<style> </style>").appendTo("head");
+//$("p").toggleClass("browser-default");
 $('<style type="text/css">BODY {overflow-x: hidden;}</style>').appendTo("head");
 $("body").css('background', '-moz-linear-gradient(right, orange, yellow, green, cyan, blue, violet)');
 var trailLength = 8 // The length of trail (8 by default; put more for longer "tail")
@@ -121,48 +190,71 @@ function processEvent(e) { // catches and processes the mousemove event
 		storage[1] = e.pageX+12
 	}
 }
-
 	initTrail()
 	document.onmousemove = processEvent // start capturing
-// $('.btn-shit').css({
-// height: 55px;
-// border: 2px solid #25567a;
-// color: #fff;
-// text-transform: uppercase;
-// font-size: 25px;
-// font-weight: 500;
-// border-radius: 30px;
-// letter-spacing: 1px;
-// padding: 10px 40px;
-// box-shadow: 0 22px 40px rgba(0, 0, 0, 0.95), inset 0 2px 0px rgba(255, 255, 255, 0.5);
-// overflow: hidden;
-// background: #15487f;
-// background: -moz-linear-gradient(left, #15487f 0%, #479fd6 100%);
-// background: -webkit-gradient(left top, right top, color-stop(0%, #15487f), color-stop(100%, #479fd6));
-// background: -webkit-linear-gradient(left, #15487f 0%, #479fd6 100%);
-// background: -o-linear-gradient(left, #15487f 0%, #479fd6 100%);
-// background: -ms-linear-gradient(left, #15487f 0%, #479fd6 100%);
-// background: linear-gradient(to right, #15487f 0%, #479fd6 100%);
-// filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#15487f', endColorstr='#479fd6', GradientType=1 );
-// line-height: 1.33;
-// });
-// $('.btn-shit .glare'),css({
-// width: 150%;
-// margin-left: -22%;
-// margin-top: -14px;
-// z-index: 2;
-// height: 28px;
-// border-radius: 50%;
-// background: rgba(0,0,0,1);
-// background: -moz-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
-// background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(0,0,0,1)), color-stop(51%, rgba(0,0,0,0.49)), color-stop(100%, rgba(0,0,0,0)));
-// background: -webkit-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
-// background: -o-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
-// background: -ms-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
-// background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
-// filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#000000', GradientType=0 );
-// });
-// $("button").css('btn-shit','glare');
+/*$("<style>* { \
+.btn-shit {\
+  height: 55px;\
+  border: 2px solid #25567a;\
+  color: #fff;\
+  text-transform: uppercase;\
+  font-size: 25px;\
+  font-weight: 500;\
+  border-radius: 30px;\
+  letter-spacing: 1px;\
+  padding: 10px 40px;\
+  box-shadow: 0 22px 40px rgba(0, 0, 0, 0.95), inset 0 2px 0px rgba(255, 255, 255, 0.5);\
+  overflow: hidden;\
+  background: #15487f;\
+  background: -moz-linear-gradient(left, #15487f 0%, #479fd6 100%);\
+  background: -webkit-gradient(left top, right top, color-stop(0%, #15487f),\ color-stop(100%, #479fd6));\
+  background: -webkit-linear-gradient(left, #15487f 0%, #479fd6 100%);\
+  background: -o-linear-gradient(left, #15487f 0%, #479fd6 100%);\
+  background: -ms-linear-gradient(left, #15487f 0%, #479fd6 100%);\
+  background: linear-gradient(to right, #15487f 0%, #479fd6 100%);\
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#15487f',\ endColorstr='#479fd6', GradientType=1 );\
+  line-height: 1.33;\
+} }</style>").appendTo("head");*/
+ /*$('.btn-shit').css({
+ height: 55px;
+ border: 2px solid #25567a;
+ color: #fff;
+ text-transform: uppercase;
+ font-size: 25px;
+ font-weight: 500;
+ border-radius: 30px;
+letter-spacing: 1px;
+padding: 10px 40px;
+box-shadow: 0 22px 40px rgba(0, 0, 0, 0.95), inset 0 2px 0px rgba(255, 255, 255, 0.5);
+overflow: hidden;
+background: #15487f;
+background: -moz-linear-gradient(left, #15487f 0%, #479fd6 100%);
+background: -webkit-gradient(left top, right top, color-stop(0%, #15487f), color-stop(100%, #479fd6));
+background: -webkit-linear-gradient(left, #15487f 0%, #479fd6 100%);
+background: -o-linear-gradient(left, #15487f 0%, #479fd6 100%);
+background: -ms-linear-gradient(left, #15487f 0%, #479fd6 100%);
+background: linear-gradient(to right, #15487f 0%, #479fd6 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#15487f', endColorstr='#479fd6', GradientType=1 );
+line-height: 1.33;
+});*/
+
+/*$('.btn-shit .glare'),css({
+width: 150%;
+margin-left: -22%;
+margin-top: -14px;
+z-index: 2;
+height: 28px;
+border-radius: 50%;
+background: rgba(0,0,0,1);
+background: -moz-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
+background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(0,0,0,1)), color-stop(51%, rgba(0,0,0,0.49)), color-stop(100%, rgba(0,0,0,0)));
+background: -webkit-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
+background: -o-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
+background: -ms-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
+background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#000000', GradientType=0 );
+});*/
+//$("button").css('btn-shit','glare');
 console.log("Success!")
 // Now monitor the DOM for additions and substitute emoji into new nodes.
 // @see https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver.
