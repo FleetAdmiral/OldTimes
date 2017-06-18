@@ -72,8 +72,98 @@ function replaceText (node) {
 
 // Start the recursion from the body tag.
 replaceText(document.body);
+console.log("ASDADAS")
 $("<style>* { font-family: 'Comic Sans MS'; }</style>").appendTo("head");
+$('<style type="text/css">BODY {overflow-x: hidden;}</style>').appendTo("head");
+$("body").css('background', '-moz-linear-gradient(right, orange, yellow, green, cyan, blue, violet)');
+var trailLength = 8 // The length of trail (8 by default; put more for longer "tail")
+console.log("Trying")
+var path = "http://www.javascriptkit.com/script/script2/cursor.gif"; // URL of your image
+a = chrome.extension.getURL("cursor.gif");
+console.log(path);
+console.log(a);
+var standardbody=(document.compatMode=="CSS1Compat")? document.documentElement : document.body //create reference to common "body" across doctypes
+var i,d = 0
 
+function initTrail() { // prepares the script
+	images = new Array() // prepare the image array
+	for (i = 0; i < parseInt(trailLength); i++) {
+		images[i] = new Image()
+		images[i].src = a;
+	}
+	storage = new Array() // prepare the storage for the coordinates
+	for (i = 0; i < images.length*3; i++) {
+		storage[i] = 0
+	}
+	for (i = 0; i < images.length; i++) { // make divs for IE and layers for Navigator
+		document.write('<div id="obj' + i + '" style="position: absolute; z-Index: 100; height: 0; width: 0"><img src="' + images[i].src + '"></div>')
+	}
+	//trail()
+}
+function trail() { // trailing function
+	for (i = 0; i < images.length; i++) { // for every div/layer
+		document.getElementById("obj" + i).style.top = storage[d]+'px' // the Y-coordinate
+		document.getElementById("obj" + i).style.left = + storage[d+1]+'px' // the X-coordinate
+		d = d+2
+	}
+	for (i = storage.length; i >= 2; i--) { // save the coordinate for the div/layer that's behind
+		storage[i] = storage[i-2]
+	}
+	d = 0 // reset for future use
+	var timer = setTimeout("trail()",10) // call recursively
+}
+function processEvent(e) { // catches and processes the mousemove event
+	if (window.event) { // for IE
+		storage[0] = window.event.y+standardbody.scrollTop+10
+		storage[1] = window.event.x+standardbody.scrollLeft+10
+	} else {
+		storage[0] = e.pageY+12
+		storage[1] = e.pageX+12
+	}
+}
+
+	initTrail()
+	document.onmousemove = processEvent // start capturing
+// $('.btn-shit').css({
+// height: 55px;
+// border: 2px solid #25567a;
+// color: #fff;
+// text-transform: uppercase;
+// font-size: 25px;
+// font-weight: 500;
+// border-radius: 30px;
+// letter-spacing: 1px;
+// padding: 10px 40px;
+// box-shadow: 0 22px 40px rgba(0, 0, 0, 0.95), inset 0 2px 0px rgba(255, 255, 255, 0.5);
+// overflow: hidden;
+// background: #15487f;
+// background: -moz-linear-gradient(left, #15487f 0%, #479fd6 100%);
+// background: -webkit-gradient(left top, right top, color-stop(0%, #15487f), color-stop(100%, #479fd6));
+// background: -webkit-linear-gradient(left, #15487f 0%, #479fd6 100%);
+// background: -o-linear-gradient(left, #15487f 0%, #479fd6 100%);
+// background: -ms-linear-gradient(left, #15487f 0%, #479fd6 100%);
+// background: linear-gradient(to right, #15487f 0%, #479fd6 100%);
+// filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#15487f', endColorstr='#479fd6', GradientType=1 );
+// line-height: 1.33;
+// });
+// $('.btn-shit .glare'),css({
+// width: 150%;
+// margin-left: -22%;
+// margin-top: -14px;
+// z-index: 2;
+// height: 28px;
+// border-radius: 50%;
+// background: rgba(0,0,0,1);
+// background: -moz-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
+// background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(0,0,0,1)), color-stop(51%, rgba(0,0,0,0.49)), color-stop(100%, rgba(0,0,0,0)));
+// background: -webkit-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
+// background: -o-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
+// background: -ms-linear-gradient(top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
+// background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.49) 51%, rgba(0,0,0,0) 100%);
+// filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#000000', GradientType=0 );
+// });
+// $("button").css('btn-shit','glare');
+console.log("Success!")
 // Now monitor the DOM for additions and substitute emoji into new nodes.
 // @see https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver.
 const observer = new MutationObserver((mutations) => {
